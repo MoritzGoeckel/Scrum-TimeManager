@@ -21,18 +21,23 @@ $app->get(
 
 $app->get('/projects/:uid', function ($uid) {
     
-    $query = "SELECT * FROM projects, user_in_project, user
-    LEFT JOIN user ON (user.id = projects.author)
-    WHERE user_in_project.user = " . $uid . " AND user_in_project.project = projects.id";
+    $query = "SELECT projects.name as projectName, projects.id as projectId,
+    user.name as autorName, user.id as autorId
+    FROM user_in_project
+    LEFT JOIN projects ON projects.id = user_in_project.project
+    LEFT JOIN user ON user.id = projects.author
+    WHERE user_in_project.user = " . $uid;
     
     $result = mysql_query($query) or die("MYSQL ERROR: " . mysql_error());
     
     $output = array();
     while ($line = mysql_fetch_array($result)) {
         array_push($output, array(
-            'id' => $line['id'],
-            'name' => $line['name']
-        ));
+                "projectId" => $line['projectId'],
+                "projectName" => $line['projectName'],
+                "autorId" => $line['autorId'],
+                "autorName" => $line['autorName'],
+            ));
     }
     
     echo json_encode($output);
