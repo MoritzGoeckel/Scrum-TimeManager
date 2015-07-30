@@ -29,8 +29,16 @@ $app->get(
     }
 );
 
-//Projects
-$app->get('/projects/:uid', function ($uid) {
+//User
+$app->get('/user/:uid', function ($uid) {
+    $query = "SELECT name
+    FROM user
+    WHERE id = " . $uid;
+    
+    runAndOutputSql($query);
+});
+
+$app->get('/user/:uid/projects/', function ($uid) {
     $query = "SELECT projects.name as projectName, projects.id as projectId,
     user.name as autorName, user.id as autorId
     FROM user_in_project
@@ -41,27 +49,57 @@ $app->get('/projects/:uid', function ($uid) {
     runAndOutputSql($query);
 });
 
-//Tasks
-$app->get('/project/:pid/tasks', function ($pid) {
-    
-});
-
-$app->get('/sprint/:sid/tasks/', function ($sid) {
-    
-});
-
 $app->get('/user/:uid/tasks/', function ($uid) {
+    $query = "SELECT tasks.id as taskId, tasks.name as taskName,
+    author.name as autorName, author.id as autorId
+    FROM tasks
+    LEFT JOIN user as author ON author.id = tasks.author
+    WHERE tasks.assignee = " . $uid;
     
+    runAndOutputSql($query);
 });
 
-//User
-$app->get('/user/:uid', function ($uid) {
+//Project
+$app->get('/project/:pid/tasks', function ($pid) {
+    $query = "SELECT tasks.id as taskId, tasks.name as taskName,
+    author.name as autorName, author.id as autorId,
+    assignee.name as assigneeName, assignee.id as assigneeId
+    FROM tasks
+    LEFT JOIN user as author ON author.id = tasks.author
+    LEFT JOIN user as assignee ON assignee.id = tasks.assignee
+    WHERE tasks.project = " . $pid;
     
+    runAndOutputSql($query);
+});
+
+$app->get('/project/:pid/sprints', function ($pid) {
+    $query = "SELECT *
+    FROM sprints
+    WHERE project = " . $pid;
+    
+    runAndOutputSql($query);
 });
 
 //Sprint
 $app->get('/sprint/:sid', function ($sid) {
+    $query = "SELECT *
+    FROM sprints
+    WHERE id = " . $sid;
     
+    runAndOutputSql($query);
+});
+
+$app->get('/sprint/:sid/tasks/', function ($sid) {
+    $query = "SELECT tasks.id as taskId, tasks.name as taskName,
+    author.name as autorName, author.id as autorId,
+    assignee.name as assigneeName, assignee.id as assigneeId
+    FROM tasks_in_sprint
+    LEFT JOIN tasks ON tasks_in_sprint.task = tasks.id
+    LEFT JOIN user as author ON author.id = tasks.author
+    LEFT JOIN user as assignee ON assignee.id = tasks.assignee
+    WHERE tasks_in_sprint.sprint = " . $sid;
+    
+    runAndOutputSql($query);
 });
 
 // POST route
