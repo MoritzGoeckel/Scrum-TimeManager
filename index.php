@@ -15,12 +15,12 @@ mysql_select_db("timemgr") or die("MYSQL CONNECTION ERROR");
 $app->get(
     '/',
     function () {
-        echo "Here the docu will apear sometimes... maybe";
+        echo "The docu... sometime... maybe.";
     }
 );
 
+//Projects
 $app->get('/projects/:uid', function ($uid) {
-    
     $query = "SELECT projects.name as projectName, projects.id as projectId,
     user.name as autorName, user.id as autorId
     FROM user_in_project
@@ -31,19 +31,33 @@ $app->get('/projects/:uid', function ($uid) {
     $result = mysql_query($query) or die("MYSQL ERROR: " . mysql_error());
     
     $output = array();
-    while ($line = mysql_fetch_array($result)) {
-        array_push($output, array(
-                "projectId" => $line['projectId'],
-                "projectName" => $line['projectName'],
-                "autorId" => $line['autorId'],
-                "autorName" => $line['autorName'],
-            ));
+    while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) { 
+        array_push($output, $line);                                           
     }
     
     echo json_encode($output);
 });
 
-$app->get('/tasks/:uid', function ($uid) {
+//Tasks
+$app->get('/project/:pid/tasks', function ($pid) {
+    
+});
+
+$app->get('/sprint/:sid/tasks/', function ($sid) {
+    
+});
+
+$app->get('/user/:uid/tasks/', function ($uid) {
+    
+});
+
+//User
+$app->get('/user/:uid', function ($uid) {
+    
+});
+
+//Sprint
+$app->get('/sprint/:sid', function ($sid) {
     
 });
 
