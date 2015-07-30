@@ -1,5 +1,9 @@
 <?php
 
+/*ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(-1);*/
+
 require 'config.php';
 require 'Slim/Slim/Slim.php';
 
@@ -9,7 +13,7 @@ $app = new \Slim\Slim();
 
 //DB
 $db = mysql_connect("localhost", "root", $database_password)
-    or die("Keine Verbindung möglich: " . mysql_error());
+    or die("Connection to db failed: " . mysql_error());
 mysql_select_db("timemgr") or die("MYSQL CONNECTION ERROR");
 
 function runAndOutputSql($query){
@@ -28,17 +32,19 @@ function execQuery(){
 }
 
 //AUTH
-$vars = $app->request->post();
-if(!isset($vars['uid']) or !isset($vars['secret']))
-    die("auth parameters missing");
-
-$result = mysql_query("SELECT * FROM user WHERE id = " . $vars['uid'] . " AND secret = " . $vars['secret']);
-
-if(mysql_num_rows($result) != 1)
-    die("auth failed");
-
-//The USER
-$user = mysql_fetch_array($result, MYSQL_ASSOC)
+function auth(){
+    $vars = $app->request->post();
+    if(!isset($vars['uid']) or !isset($vars['secret']))
+        die("auth parameters missing");
+    
+    $result = mysql_query("SELECT * FROM user WHERE id = " . $vars['uid'] . " AND secret = " . $vars['secret']);
+    
+    if(mysql_num_rows($result) != 1)
+        die("auth failed");   
+        
+    //The USER
+    return mysql_fetch_array($result, MYSQL_ASSOC);
+}
 
 // ##### THE GET API #####
 
@@ -51,6 +57,8 @@ $app->get(
 
 //User
 $app->get('/user/:uid', function ($uid) {
+    auth();
+    
     $query = "SELECT name
     FROM user
     WHERE id = " . $uid;
@@ -59,6 +67,8 @@ $app->get('/user/:uid', function ($uid) {
 });
 
 $app->get('/user/:uid/projects/', function ($uid) {
+    auth();
+    
     $query = "SELECT projects.name as projectName, projects.id as projectId,
     user.name as autorName, user.id as autorId
     FROM user_in_project
@@ -70,6 +80,8 @@ $app->get('/user/:uid/projects/', function ($uid) {
 });
 
 $app->get('/user/:uid/tasks/', function ($uid) {
+    auth();
+    
     $query = "SELECT tasks.id as taskId, tasks.name as taskName,
     author.name as autorName, author.id as autorId
     FROM tasks
@@ -81,6 +93,8 @@ $app->get('/user/:uid/tasks/', function ($uid) {
 
 //Project
 $app->get('/project/:pid/tasks', function ($pid) {
+    auth();
+    
     $query = "SELECT tasks.id as taskId, tasks.name as taskName,
     author.name as autorName, author.id as autorId,
     assignee.name as assigneeName, assignee.id as assigneeId
@@ -93,6 +107,8 @@ $app->get('/project/:pid/tasks', function ($pid) {
 });
 
 $app->get('/project/:pid/sprints', function ($pid) {
+    auth();
+    
     $query = "SELECT *
     FROM sprints
     WHERE project = " . $pid;
@@ -102,6 +118,8 @@ $app->get('/project/:pid/sprints', function ($pid) {
 
 //Sprint
 $app->get('/sprint/:sid', function ($sid) {
+    auth();
+    
     $query = "SELECT *
     FROM sprints
     WHERE id = " . $sid;
@@ -110,6 +128,8 @@ $app->get('/sprint/:sid', function ($sid) {
 });
 
 $app->get('/sprint/:sid/tasks/', function ($sid) {
+    auth();
+    
     $query = "SELECT tasks.id as taskId, tasks.name as taskName,
     author.name as autorName, author.id as autorId,
     assignee.name as assigneeName, assignee.id as assigneeId
@@ -127,6 +147,8 @@ $app->get('/sprint/:sid/tasks/', function ($sid) {
 $app->post(
     '/add/user',
     function () {
+        auth();
+        
         if(isset($vars['name']) && isset($vars['mail']))
             execQuery("INSERT INTO user (name, mail) VALUES ('" . $vars['name'] . "', '" . $vars['mail'] . "')");
         else 
@@ -137,6 +159,8 @@ $app->post(
 $app->post(
     '/add/project',
     function () {
+        $user = auth();
+        
         if(isset($vars['name']))
             execQuery("INSERT INTO projects (name, author) VALUES ('" . $vars['name'] . "', " . $user['id'] . ")");
         else 
@@ -147,7 +171,7 @@ $app->post(
 $app->post(
     '/add/sprint',
     function () {
-        if(isset($vars['name']) && isset($vars['project']) && isset($vars['start'])) && isset($vars['end'])))
+        if(isset($vars['name']) && isset($vars['project']) && isset($vars['start']) && isset($vars['end']))
             execQuery("INSERT INTO sprints (name, project, start, end) VALUES ('" . $vars['name'] . "', " . $vars['project'] . ", '" .$vars['start']. "', '".$vars['end']."')");
         else 
             echo ("parameters missing");
@@ -157,6 +181,8 @@ $app->post(
 $app->post(
     '/add/task',
     function () {
+        $user = auth();
+        
         if(isset($vars['name']) && isset($vars['description']) && isset($vars['effort']) && isset($vars['assignee']) && isset($vars['priority']) && isset($vars['project']))
             execQuery("INSERT INTO tasks (name, description, author, effort, assignee, priority, project) VALUES 
                                          ('".$vars['name']."', '".$vars['description']."', ".$user['id'].", ".$vars['effort'].", ".$vars['assignee'].", ".$vars['priority'].", ".$vars['project'].")");
