@@ -22,6 +22,26 @@ function runAndOutputSql($query){
     echo json_encode($output);
 }
 
+function execQuery(){
+    mysql_query($query) or die("MYSQL ERROR: " . mysql_error());
+    echo "Done";
+}
+
+//AUTH
+$vars = $app->request->post();
+if(!isset($vars['uid']) or !isset($vars['secret']))
+    die("auth parameters missing");
+
+$result = mysql_query("SELECT * FROM user WHERE id = " . $vars['uid'] . " AND secret = " . $vars['secret']);
+
+if(mysql_num_rows($result) != 1)
+    die("auth failed");
+
+//The USER
+$user = mysql_fetch_array($result, MYSQL_ASSOC)
+
+// ##### THE GET API #####
+
 $app->get(
     '/',
     function () {
@@ -102,13 +122,50 @@ $app->get('/sprint/:sid/tasks/', function ($sid) {
     runAndOutputSql($query);
 });
 
-// POST route
-/*$app->post(
-    '/post',
+// ##### THE INSERT API #####
+
+$app->post(
+    '/add/user',
     function () {
-        echo 'This is a POST route';
+        if(isset($vars['name']) && isset($vars['mail']))
+            execQuery("INSERT INTO user (name, mail) VALUES ('" . $vars['name'] . "', '" . $vars['mail'] . "')");
+        else 
+            echo ("parameters missing");
     }
-);*/
+);
+
+$app->post(
+    '/add/project',
+    function () {
+        if(isset($vars['name']))
+            execQuery("INSERT INTO projects (name, author) VALUES ('" . $vars['name'] . "', " . $user['id'] . ")");
+        else 
+            echo ("parameters missing");
+    }
+);
+
+$app->post(
+    '/add/sprint',
+    function () {
+        if(isset($vars['name']) && isset($vars['project']) && isset($vars['start'])) && isset($vars['end'])))
+            execQuery("INSERT INTO sprints (name, project, start, end) VALUES ('" . $vars['name'] . "', " . $vars['project'] . ", '" .$vars['start']. "', '".$vars['end']."')");
+        else 
+            echo ("parameters missing");
+    }
+);
+
+$app->post(
+    '/add/task',
+    function () {
+        if(isset($vars['name']) && isset($vars['description']) && isset($vars['effort']) && isset($vars['assignee']) && isset($vars['priority']) && isset($vars['project']))
+            execQuery("INSERT INTO tasks (name, description, author, effort, assignee, priority, project) VALUES 
+                                         ('".$vars['name']."', '".$vars['description']."', ".$user['id'].", ".$vars['effort'].", ".$vars['assignee'].", ".$vars['priority'].", ".$vars['project'].")");
+        else 
+            echo ("parameters missing");
+    }
+);
+
+// ##### THE UPDATE API #####
 
 $app->run();
 
