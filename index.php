@@ -12,6 +12,16 @@ $db = mysql_connect("localhost", "root", $database_password)
     or die("Keine Verbindung möglich: " . mysql_error());
 mysql_select_db("timemgr") or die("MYSQL CONNECTION ERROR");
 
+function runAndOutputSql($query){
+    $result = mysql_query($query) or die("MYSQL ERROR: " . mysql_error());
+    $output = array();
+    while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) { 
+        array_push($output, $line);                                           
+    }
+    
+    echo json_encode($output);
+}
+
 $app->get(
     '/',
     function () {
@@ -28,14 +38,7 @@ $app->get('/projects/:uid', function ($uid) {
     LEFT JOIN user ON user.id = projects.author
     WHERE user_in_project.user = " . $uid;
     
-    $result = mysql_query($query) or die("MYSQL ERROR: " . mysql_error());
-    
-    $output = array();
-    while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) { 
-        array_push($output, $line);                                           
-    }
-    
-    echo json_encode($output);
+    runAndOutputSql($query);
 });
 
 //Tasks
