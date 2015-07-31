@@ -31,6 +31,8 @@ function execQuery(){
     echo "Done";
 }
 
+//Escape Strings mysql_real_escape_string
+
 //AUTH
 function auth(){
     $vars = $app->request->post();
