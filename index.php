@@ -205,7 +205,7 @@ $app->get(
         if(isset($vars['mail']))
             $update .= "mail = '" . $vars['mail'] . "' ";
         
-        $if($update != "")
+        if($update != "")
             execQuery("UPDATE user SET ".$update." WHERE id = " . $uid);
         else
             echo ("parameters missing");
@@ -224,7 +224,7 @@ $app->get(
         if(isset($vars['author']))
             $update .= "author = '" . $vars['author'] . "' ";
         
-        $if($update != "")
+        if($update != "")
             execQuery("UPDATE projects SET ".$update." WHERE id = " . $pid . " AND author = " . $user['id']);
         else
             echo ("parameters missing");
@@ -258,7 +258,7 @@ $app->get(
         if(isset($vars['used']))
             $update .= "used = " . $vars['used'] . " ";
         
-        $if($update != "")
+        if($update != "")
             execQuery("UPDATE tasks SET ".$update." WHERE id = " . $tid . " AND author = " . $user['id']);
         else
             echo ("parameters missing");
