@@ -193,6 +193,78 @@ $app->post(
 
 // ##### THE UPDATE API #####
 
+$app->get(
+    '/update/user/:uid',
+    function ($uid) {
+        auth();
+        
+        $update = "";
+        if(isset($vars['name']))
+            $update .= "name = '" . $vars['name'] . "' ";
+            
+        if(isset($vars['mail']))
+            $update .= "mail = '" . $vars['mail'] . "' ";
+        
+        $if($update != "")
+            execQuery("UPDATE user SET ".$update." WHERE id = " . $uid);
+        else
+            echo ("parameters missing");
+    }
+);
+
+$app->get(
+    '/update/project/:pid',
+    function ($pid) {
+        $user = auth();
+        
+        $update = "";
+        if(isset($vars['name']))
+            $update .= "name = '" . $vars['name'] . "' ";
+            
+        if(isset($vars['author']))
+            $update .= "author = '" . $vars['author'] . "' ";
+        
+        $if($update != "")
+            execQuery("UPDATE projects SET ".$update." WHERE id = " . $pid . " AND author = " . $user['id']);
+        else
+            echo ("parameters missing");
+    }
+);
+
+$app->get(
+    '/update/task/:tid',
+    function ($tid) {
+        $user = auth();
+        
+        $update = "";
+        if(isset($vars['name']))
+            $update .= "name = '" . $vars['name'] . "' ";
+            
+        if(isset($vars['description']))
+            $update .= "description = '" . $vars['description'] . "' ";
+            
+        if(isset($vars['effort']))
+            $update .= "effort = " . $vars['effort'] . " ";
+            
+        if(isset($vars['assignee']))
+            $update .= "assignee = " . $vars['assignee'] . " ";
+            
+        if(isset($vars['priority']))
+            $update .= "priority = " . $vars['priority'] . " ";
+            
+        if(isset($vars['project']))
+            $update .= "project = " . $vars['project'] . " ";
+            
+        if(isset($vars['used']))
+            $update .= "used = " . $vars['used'] . " ";
+        
+        $if($update != "")
+            execQuery("UPDATE tasks SET ".$update." WHERE id = " . $tid . " AND author = " . $user['id']);
+        else
+            echo ("parameters missing");
+    }
+);
+
 $app->run();
 
 //mysql_free_result($result);
