@@ -35,6 +35,7 @@ function execQuery(){
 
 //AUTH
 function auth(){
+    global $app;
     $vars = $app->request->post();
     if(!isset($vars['uid']) or !isset($vars['secret']))
         die("auth parameters missing");
@@ -58,6 +59,15 @@ $app->get(
 );
 
 //User
+$app->get('/login/:mail/:pw', function ($mail, $pw) {
+    $query = "SELECT secret, id
+    FROM user
+    WHERE pw = '" . $pw . "' " .
+    "AND (mail = '".$mail."' or name = '".$pw."')";
+    
+    runAndOutputSql($query);
+});
+
 $app->get('/user/:uid', function ($uid) {
     auth();
     

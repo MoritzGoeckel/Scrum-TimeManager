@@ -16,8 +16,15 @@ app.config(['$routeProvider',
        });
  }]);
 
- app.controller('loginCtl', function($scope) {
+ app.controller('loginCtl', function($scope, $http) {
     $scope.message = "LOGIN";
+    $scope.submit = function() {
+        console.log('api.php/login/'+ $scope.name +'/'+ $scope.pw);
+        $http.get('api.php/login/'+ $scope.name +'/'+ $scope.pw).                  
+          then(function(response) {
+            console.log(response);
+          }, function(response) {console.log("Error: " + response);});
+      };
  });
 
  app.controller('dashboardCtl', function($scope) {

@@ -7,20 +7,22 @@
 <body>
    <h2>TEST</h2>
    <div ng-app="app">
-      <p><a href="#login">Login</a></p>
-      <p><a href="#dashboard">Dashboard</a></p>
+        <p><a href="#login">Login</a></p>
+        <p><a href="#dashboard">Dashboard</a></p>
       
-      <div ng-view></div>
+        <div ng-view></div>
       
-      <script type="text/ng-template" id="login.htm">
-         <h2>Login</h2>
-         {{message}}
-      </script>
+        <script type="text/ng-template" id="login.htm">
+            <h2>Login</h2>
+            <input type="text" ng-model="name"><br>
+            <input type="text" ng-model="pw"><br>
+            <input type="submit" id="submit" value="Submit" ng-click='submit()'/>
+        </script>
       
-      <script type="text/ng-template" id="dashboard.htm">
-         <h2>Dashboard</h2>	    
-         {{message}}
-      </script>
+        <script type="text/ng-template" id="dashboard.htm">
+            <h2>Dashboard</h2>	    
+            {{message}}
+        </script>
    </div>
 
    <script src="js/app.js"></script>
