@@ -60,7 +60,7 @@ $app->get(
 
 //User
 $app->get('/login/:mail/:pw', function ($mail, $pw) {
-    $query = "SELECT secret, id
+    $query = "SELECT name, secret, mail, id
     FROM user
     WHERE pw = '" . $pw . "' " .
     "AND (mail = '".$mail."' or name = '".$pw."')";
@@ -71,7 +71,7 @@ $app->get('/login/:mail/:pw', function ($mail, $pw) {
 $app->get('/user/:uid', function ($uid) {
     auth();
     
-    $query = "SELECT name
+    $query = "SELECT name, id, mail
     FROM user
     WHERE id = " . $uid;
     

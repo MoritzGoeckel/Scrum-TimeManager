@@ -1,5 +1,5 @@
 var app = angular.module("app", ['ngRoute']);
-      
+
 app.config(['$routeProvider',
  function($routeProvider) {
     $routeProvider.
@@ -16,17 +16,16 @@ app.config(['$routeProvider',
        });
  }]);
 
- app.controller('loginCtl', function($scope, $http) {
+ app.controller('loginCtl', function($scope, $http, $rootScope) {
     $scope.message = "LOGIN";
     $scope.submit = function() {
-        console.log('api.php/login/'+ $scope.name +'/'+ $scope.pw);
         $http.get('api.php/login/'+ $scope.name +'/'+ $scope.pw).                  
           then(function(response) {
-            console.log(response);
+            $rootScope.user = response.data[0];
           }, function(response) {console.log("Error: " + response);});
       };
  });
 
- app.controller('dashboardCtl', function($scope) {
-    $scope.message = "DAHBOARD";
+ app.controller('dashboardCtl', function($scope, $rootScope) {
+    $scope.user = $rootScope.user;
  });
