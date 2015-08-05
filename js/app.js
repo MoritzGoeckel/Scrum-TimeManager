@@ -7,9 +7,9 @@ app.config(['$routeProvider',
           templateUrl: 'login.htm',
           controller: 'loginCtl'
        }).
-       when('/dashboard', {
-          templateUrl: 'dashboard.htm',
-          controller: 'dashboardCtl'
+       when('/projects', {
+          templateUrl: 'projects.htm',
+          controller: 'projectsCtl'
        }).
        otherwise({
           redirectTo: '/login'
@@ -19,13 +19,20 @@ app.config(['$routeProvider',
  app.controller('loginCtl', function($scope, $http, $rootScope) {
     $scope.message = "LOGIN";
     $scope.submit = function() {
-        $http.get('api.php/login/'+ $scope.name +'/'+ $scope.pw).                  
+        $http.post('api.php/login/'+ $scope.name +'/'+ $scope.pw).                  
           then(function(response) {
             $rootScope.user = response.data[0];
+            $rootScope.auth = {uid: $rootScope.user.id, secret: $rootScope.user.secret};
           }, function(response) {console.log("Error: " + response);});
       };
  });
 
- app.controller('dashboardCtl', function($scope, $rootScope) {
-    $scope.user = $rootScope.user;
+ app.controller('projectsCtl', function($scope, $http, $rootScope) {
+     console.log($rootScope.auth);
+    $http.post('api.php/user/' + $rootScope.user.id + '/projects/', $rootScope.auth).                  
+          then(function(response) {
+            console.log('api.php/user/' + $rootScope.user.id + '/projects/');
+            console.log(response.data);
+            $rootScope.projects = response.data;
+          }, function(response) {console.log("Error: " + response);});
  });

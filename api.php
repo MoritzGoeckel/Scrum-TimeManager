@@ -36,7 +36,8 @@ function execQuery(){
 //AUTH
 function auth(){
     global $app;
-    $vars = $app->request->post();
+    $vars = json_decode($app->environment['slim.input'], true);
+    
     if(!isset($vars['uid']) or !isset($vars['secret']))
         die("auth parameters missing");
     
@@ -51,7 +52,7 @@ function auth(){
 
 // ##### THE GET API #####
 
-$app->get(
+$app->post(
     '/',
     function () {
         echo "The docu... sometime... maybe.";
@@ -59,7 +60,7 @@ $app->get(
 );
 
 //User
-$app->get('/login/:mail/:pw', function ($mail, $pw) {
+$app->post('/login/:mail/:pw', function ($mail, $pw) {
     $query = "SELECT name, secret, mail, id
     FROM user
     WHERE pw = '" . $pw . "' " .
@@ -68,7 +69,7 @@ $app->get('/login/:mail/:pw', function ($mail, $pw) {
     runAndOutputSql($query);
 });
 
-$app->get('/user/:uid', function ($uid) {
+$app->post('/user/:uid', function ($uid) {
     auth();
     
     $query = "SELECT name, id, mail
@@ -78,7 +79,7 @@ $app->get('/user/:uid', function ($uid) {
     runAndOutputSql($query);
 });
 
-$app->get('/user/:uid/projects/', function ($uid) {
+$app->post('/user/:uid/projects/', function ($uid) use ($app){
     auth();
     
     $query = "SELECT projects.name as projectName, projects.id as projectId,
@@ -91,7 +92,7 @@ $app->get('/user/:uid/projects/', function ($uid) {
     runAndOutputSql($query);
 });
 
-$app->get('/user/:uid/tasks/', function ($uid) {
+$app->post('/user/:uid/tasks/', function ($uid) {
     auth();
     
     $query = "SELECT tasks.id as taskId, tasks.name as taskName,
@@ -104,7 +105,7 @@ $app->get('/user/:uid/tasks/', function ($uid) {
 });
 
 //Project
-$app->get('/project/:pid/tasks', function ($pid) {
+$app->post('/project/:pid/tasks', function ($pid) {
     auth();
     
     $query = "SELECT tasks.id as taskId, tasks.name as taskName,
@@ -118,7 +119,7 @@ $app->get('/project/:pid/tasks', function ($pid) {
     runAndOutputSql($query);
 });
 
-$app->get('/project/:pid/sprints', function ($pid) {
+$app->post('/project/:pid/sprints', function ($pid) {
     auth();
     
     $query = "SELECT *
@@ -129,7 +130,7 @@ $app->get('/project/:pid/sprints', function ($pid) {
 });
 
 //Sprint
-$app->get('/sprint/:sid', function ($sid) {
+$app->post('/sprint/:sid', function ($sid) {
     auth();
     
     $query = "SELECT *
@@ -139,7 +140,7 @@ $app->get('/sprint/:sid', function ($sid) {
     runAndOutputSql($query);
 });
 
-$app->get('/sprint/:sid/tasks/', function ($sid) {
+$app->post('/sprint/:sid/tasks/', function ($sid) {
     auth();
     
     $query = "SELECT tasks.id as taskId, tasks.name as taskName,
@@ -205,7 +206,7 @@ $app->post(
 
 // ##### THE UPDATE API #####
 
-$app->get(
+$app->post(
     '/update/user/:uid',
     function ($uid) {
         auth();
@@ -224,7 +225,7 @@ $app->get(
     }
 );
 
-$app->get(
+$app->post(
     '/update/project/:pid',
     function ($pid) {
         $user = auth();
@@ -243,7 +244,7 @@ $app->get(
     }
 );
 
-$app->get(
+$app->post(
     '/update/task/:tid',
     function ($tid) {
         $user = auth();
