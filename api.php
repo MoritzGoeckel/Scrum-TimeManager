@@ -104,7 +104,30 @@ $app->post('/user/:uid/tasks/', function ($uid) {
     runAndOutputSql($query);
 });
 
+//tasks
+$app->post('/task/:uid', function ($uid) {
+    auth();
+    
+    $query = "SELECT tasks.id as taskId, tasks.name as taskName,
+    author.name as autorName, author.id as autorId
+    FROM tasks
+    LEFT JOIN user as author ON author.id = tasks.author 
+    WHERE tasks.id = " . $uid;
+    
+    runAndOutputSql($query);
+});
+
 //Project
+$app->post('/project/:pid', function ($pid) {
+    auth();
+    
+    $query = "SELECT *
+    FROM projects
+    WHERE id = " . $pid;
+    
+    runAndOutputSql($query);
+});
+
 $app->post('/project/:pid/tasks', function ($pid) {
     auth();
     

@@ -11,6 +11,22 @@ app.config(['$routeProvider',
           templateUrl: 'projects.htm',
           controller: 'projectsCtl'
        }).
+       when('/project/:id', {
+          templateUrl: 'project.htm',
+          controller: 'projectCtl'
+       }).
+       when('/task/:id', {
+          templateUrl: 'task.htm',
+          controller: 'taskCtl'
+       }).
+       when('/sprint/:id', {
+          templateUrl: 'sprint.htm',
+          controller: 'sprintCtl'
+       }).
+       when('/user/:id', {
+          templateUrl: 'user.htm',
+          controller: 'userCtl'
+       }).
        otherwise({
           redirectTo: '/login'
        });
@@ -47,12 +63,86 @@ function doLogin($rootScope, $cookies, $location){
  });
 
  app.controller('projectsCtl', function($scope, $http, $rootScope, $location, $cookies) {
+    doLogin($rootScope, $cookies, $location)
+    
+    $http.post('api.php/user/' + $rootScope.user.id + '/projects/', $rootScope.auth).                  
+        then(function(response) 
+        {
+            $rootScope.projects = response.data;
+        }, 
+        function(response) {console.log("Error: " + response);});
+});
+
+ app.controller('projectCtl', function($scope, $http, $rootScope, $location, $cookies, $routeParams) {
+    doLogin($rootScope, $cookies, $location)
+    
+    $scope.id = $routeParams.id;
+    
+    $http.post('api.php/project/' + $routeParams.id, $rootScope.auth).                  
+        then(function(response) 
+        {
+            $scope.project = response.data[0];
+        }, 
+        function(response) {console.log("Error: " + response);});
+    
+    $http.post('api.php/project/' + $routeParams.id + '/tasks', $rootScope.auth).                  
+        then(function(response) 
+        {
+            $scope.tasks = response.data;
+        }, 
+        function(response) {console.log("Error: " + response);});
+        
+    $http.post('api.php/project/' + $routeParams.id + '/sprints', $rootScope.auth).                  
+        then(function(response) 
+        {
+            $scope.sprints = response.data;
+        }, 
+        function(response) {console.log("Error: " + response);});
+});
+
+ app.controller('taskCtl', function($scope, $http, $rootScope, $location, $cookies, $routeParams) {
         doLogin($rootScope, $cookies, $location)
         
-        $http.post('api.php/user/' + $rootScope.user.id + '/projects/', $rootScope.auth).                  
+        $scope.id = $routeParams.id;
+        
+        $http.post('api.php/task/' + $routeParams.id, $rootScope.auth).                  
             then(function(response) 
             {
-                $rootScope.projects = response.data;
+                $scope.task = response.data[0];
             }, 
             function(response) {console.log("Error: " + response);});
-    });
+});
+
+ app.controller('sprintCtl', function($scope, $http, $rootScope, $location, $cookies, $routeParams) {
+        doLogin($rootScope, $cookies, $location)
+        
+        $scope.id = $routeParams.id;
+        
+        $http.post('api.php/sprint/' + $routeParams.id, $rootScope.auth).                  
+            then(function(response) 
+            {
+                $scope.sprint = response.data[0];
+            }, 
+            function(response) {console.log("Error: " + response);});
+        
+        $http.post('api.php/sprint/' + $routeParams.id + '/tasks/', $rootScope.auth).                  
+            then(function(response) 
+            {
+                $scope.tasks = response.data;
+            }, 
+            function(response) {console.log("Error: " + response);}); 
+            
+});
+
+ app.controller('userCtl', function($scope, $http, $rootScope, $location, $cookies, $routeParams) {
+        doLogin($rootScope, $cookies, $location)
+        
+        $scope.id = $routeParams.id;
+        
+        $http.post('api.php/user/' + $routeParams.id, $rootScope.auth).                  
+            then(function(response) 
+            {
+                $scope.user = response.data[0];
+            }, 
+            function(response) {console.log("Error: " + response);});
+});

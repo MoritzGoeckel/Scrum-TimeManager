@@ -7,10 +7,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
 </head>
 <body>
-   <h2>TEST</h2>
    <div ng-app="app">
-        <p><a href="#login">Login</a></p>
-        <p><a href="#projects">Projects</a></p>
+        <p><a href="#projects">Home</a></p>
       
         <div ng-view></div>
       
@@ -25,9 +23,46 @@
             <h2>Projects</h2>
             <span ng-repeat="project in $root.projects">
                 <a href="#/project/{{ project.projectId }}">{{ project.projectName }}</a>
-                <small> von <a href="#/project/{{ project.autorId }}">{{ project.autorName }}</a></small>
+                <small> von <a href="#/user/{{ project.autorId }}">{{ project.autorName }}</a></small>
                 <br>
             </span>
+        </script>
+        
+        <script type="text/ng-template" id="project.htm">
+            <h2>{{ project.name }}</h2>
+            <span ng-repeat="task in tasks">
+                <a href="#/task/{{ task.taskId }}">{{ task.taskName }}</a>
+                <small> von <a href="#/user/{{ task.autorId }}">{{ task.autorName }}</a></small>
+                <br>
+            </span>
+            
+            <p />
+            
+            <span ng-repeat="sprint in sprints">
+                <a href="#/sprint/{{ sprint.id }}">{{ sprint.name }}</a>
+                <br>
+            </span>
+        </script>
+        
+        <script type="text/ng-template" id="task.htm">
+            <h2>{{ task.taskName }}</h2>
+            {{task}}
+        </script>
+        
+        <script type="text/ng-template" id="sprint.htm">
+            <h2>{{ sprint.name }}</h2>
+            {{sprint}}
+            <p />
+            <span ng-repeat="task in tasks">
+                <a href="#/task/{{ task.taskId }}">{{ task.taskName }}</a>
+                <small> von <a href="#/user/{{ task.autorId }}">{{ task.autorName }}</a></small>
+                <br>
+            </span>
+        </script>
+        
+        <script type="text/ng-template" id="user.htm">
+            <h2>{{user.name}}</h2>
+            {{user}}
         </script>
    </div>
 
