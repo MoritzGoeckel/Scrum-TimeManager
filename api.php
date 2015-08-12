@@ -11,6 +11,12 @@ require 'Slim/Slim/Slim.php';
 
 $app = new \Slim\Slim();
 
+function writeLog($msg){
+    $file = fopen("api_log.txt","a");
+    fwrite($file, $msg . "\n");
+    fclose($file);
+}
+
 //DB
 $db = mysql_connect("localhost", "root", $database_password)
     or die("Connection to db failed: " . mysql_error());
@@ -26,8 +32,9 @@ function runAndOutputSql($query){
     echo json_encode($output);
 }
 
-function execQuery(){
-    mysql_query($query) or die("MYSQL ERROR: " . mysql_error());
+function execQuery($query){
+    writeLog($query);
+    mysql_query($query) or die(writeLog("MYSQL ERROR: " . mysql_error()));
     echo "Done";
 }
 
@@ -36,12 +43,13 @@ function execQuery(){
 //AUTH
 function auth(){
     global $app;
+    global $vars;
     $vars = json_decode($app->environment['slim.input'], true);
     
-    if(!isset($vars['uid']) or !isset($vars['secret']))
+    if(!isset($vars['auth']) or !isset($vars['auth']['uid']) or !isset($vars['auth']['secret']))
         die("auth parameters missing");
     
-    $result = mysql_query("SELECT * FROM user WHERE id = " . $vars['uid'] . " AND secret = " . $vars['secret']);
+    $result = mysql_query("SELECT * FROM user WHERE id = " . $vars['auth']['uid'] . " AND secret = " . $vars['auth']['secret']);
     
     if(mysql_num_rows($result) != 1)
         die("auth failed");   
@@ -185,8 +193,11 @@ $app->post(
     function () {
         auth();
         
-        if(isset($vars['name']) && isset($vars['mail']))
-            execQuery("INSERT INTO user (name, mail) VALUES ('" . $vars['name'] . "', '" . $vars['mail'] . "')");
+        global $vars;
+        $data = $vars['data'];
+        
+        if(isset($data['name']) && isset($data['mail']))
+            execQuery("INSERT INTO user (name, mail) VALUES ('" . $data['name'] . "', '" . $data['mail'] . "')");
         else 
             echo ("parameters missing");
     }
@@ -197,8 +208,11 @@ $app->post(
     function () {
         $user = auth();
         
-        if(isset($vars['name']))
-            execQuery("INSERT INTO projects (name, author) VALUES ('" . $vars['name'] . "', " . $user['id'] . ")");
+        global $vars;
+        $data = $vars['data'];
+        
+        if(isset($data['name']))
+            execQuery("INSERT INTO projects (name, author) VALUES ('" . $data['name'] . "', " . $data['id'] . ")");
         else 
             echo ("parameters missing");
     }
@@ -207,8 +221,12 @@ $app->post(
 $app->post(
     '/add/sprint',
     function () {
-        if(isset($vars['name']) && isset($vars['project']) && isset($vars['start']) && isset($vars['end']))
-            execQuery("INSERT INTO sprints (name, project, start, end) VALUES ('" . $vars['name'] . "', " . $vars['project'] . ", '" .$vars['start']. "', '".$vars['end']."')");
+        
+        global $vars;
+        $data = $vars['data'];
+        
+        if(isset($data['name']) && isset($data['project']) && isset($data['start']) && isset($data['end']))
+            execQuery("INSERT INTO sprints (name, project, start, end) VALUES ('" . $data['name'] . "', " . $data['project'] . ", '" .$data['start']. "', '".$data['end']."')");
         else 
             echo ("parameters missing");
     }
@@ -219,9 +237,12 @@ $app->post(
     function () {
         $user = auth();
         
-        if(isset($vars['name']) && isset($vars['description']) && isset($vars['effort']) && isset($vars['assignee']) && isset($vars['priority']) && isset($vars['project']))
+        global $vars;
+        $data = $vars['data'];
+        
+        if(isset($data['name']) && isset($data['description']) && isset($data['effort']) && isset($data['assignee']) && isset($data['priority']) && isset($data['project']))
             execQuery("INSERT INTO tasks (name, description, author, effort, assignee, priority, project) VALUES 
-                                         ('".$vars['name']."', '".$vars['description']."', ".$user['id'].", ".$vars['effort'].", ".$vars['assignee'].", ".$vars['priority'].", ".$vars['project'].")");
+                                         ('".$data['name']."', '".$data['description']."', ".$data['id'].", ".$data['effort'].", ".$data['assignee'].", ".$data['priority'].", ".$data['project'].")");
         else 
             echo ("parameters missing");
     }
@@ -234,12 +255,15 @@ $app->post(
     function ($uid) {
         auth();
         
+        global $vars;
+        $data = $vars['data'];
+        
         $update = "";
-        if(isset($vars['name']))
-            $update .= "name = '" . $vars['name'] . "' ";
+        if(isset($data['name']))
+            $update .= "name = '" . $data['name'] . "' ";
             
-        if(isset($vars['mail']))
-            $update .= "mail = '" . $vars['mail'] . "' ";
+        if(isset($data['mail']))
+            $update .= "mail = '" . $data['mail'] . "' ";
         
         if($update != "")
             execQuery("UPDATE user SET ".$update." WHERE id = " . $uid);
@@ -253,12 +277,15 @@ $app->post(
     function ($pid) {
         $user = auth();
         
+        global $vars;
+        $data = $vars['data'];
+        
         $update = "";
-        if(isset($vars['name']))
-            $update .= "name = '" . $vars['name'] . "' ";
+        if(isset($data['name']))
+            $update .= "name = '" . $data['name'] . "' ";
             
-        if(isset($vars['author']))
-            $update .= "author = '" . $vars['author'] . "' ";
+        if(isset($data['author']))
+            $update .= "author = '" . $data['author'] . "' ";
         
         if($update != "")
             execQuery("UPDATE projects SET ".$update." WHERE id = " . $pid . " AND author = " . $user['id']);
@@ -272,30 +299,33 @@ $app->post(
     function ($tid) {
         $user = auth();
         
+        global $vars;
+        $data = $vars['data'];
+        
         $update = "";
-        if(isset($vars['name']))
-            $update .= "name = '" . $vars['name'] . "' ";
+        if(isset($data['taskName']))
+            $update .= "name = '" . $data['taskName'] . "' ";
             
-        if(isset($vars['description']))
-            $update .= "description = '" . $vars['description'] . "' ";
+        if(isset($data['description']))
+            $update .= "description = '" . $data['description'] . "' ";
             
-        if(isset($vars['effort']))
-            $update .= "effort = " . $vars['effort'] . " ";
+        if(isset($data['effort']))
+            $update .= "effort = " . $data['effort'] . " ";
             
-        if(isset($vars['assignee']))
-            $update .= "assignee = " . $vars['assignee'] . " ";
+        if(isset($data['assignee']))
+            $update .= "assignee = " . $data['assignee'] . " ";
             
-        if(isset($vars['priority']))
-            $update .= "priority = " . $vars['priority'] . " ";
+        if(isset($data['priority']))
+            $update .= "priority = " . $data['priority'] . " ";
             
-        if(isset($vars['project']))
-            $update .= "project = " . $vars['project'] . " ";
+        if(isset($data['project']))
+            $update .= "project = " . $data['project'] . " ";
             
-        if(isset($vars['used']))
-            $update .= "used = " . $vars['used'] . " ";
+        if(isset($data['used']))
+            $update .= "used = " . $data['used'] . " ";
         
         if($update != "")
-            execQuery("UPDATE tasks SET ".$update." WHERE id = " . $tid . " AND author = " . $user['id']);
+            execQuery("UPDATE tasks SET ".$update." WHERE id = " . $tid);
         else
             echo ("parameters missing");
     }

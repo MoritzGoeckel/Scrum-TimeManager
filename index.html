@@ -12,12 +12,16 @@
       
         <div ng-view></div>
       
+        <!-- LOGIN -->
+      
         <script type="text/ng-template" id="login.htm">
             <h2>Login</h2>
             <input type="text" ng-model="name"><br>
             <input type="text" ng-model="pw"><br>
             <input type="submit" id="submit" value="Submit" ng-click='submit()'/>
         </script>
+      
+       <!-- List of Projects -->
       
         <script type="text/ng-template" id="projects.htm">
             <h2>Projects</h2>
@@ -27,6 +31,8 @@
                 <br>
             </span>
         </script>
+        
+        <!-- Project -->
         
         <script type="text/ng-template" id="project.htm">
             <h2>{{ project.name }}</h2>
@@ -44,10 +50,21 @@
             </span>
         </script>
         
+        <!-- TASK -->
+        
         <script type="text/ng-template" id="task.htm">
             <h2>{{ task.taskName }}</h2>
             {{task}}
         </script>
+        
+        <script type="text/ng-template" id="task-edit.htm">
+            <input type="text" ng-model="task.taskName"><br />
+            {{task}}<br />
+            <button ng-click='save()' >Save</button>
+            {{error}}
+        </script>
+        
+        <!-- SPRINT -->
         
         <script type="text/ng-template" id="sprint.htm">
             <h2>{{ sprint.name }}</h2>
@@ -59,6 +76,8 @@
                 <br>
             </span>
         </script>
+        
+        <!-- USER -->
         
         <script type="text/ng-template" id="user.htm">
             <h2>{{user.name}}</h2>

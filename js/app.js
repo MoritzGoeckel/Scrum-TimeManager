@@ -19,6 +19,10 @@ app.config(['$routeProvider',
           templateUrl: 'task.htm',
           controller: 'taskCtl'
        }).
+       when('/task-edit/:id', {
+          templateUrl: 'task-edit.htm',
+          controller: 'taskCtl'
+       }).
        when('/sprint/:id', {
           templateUrl: 'sprint.htm',
           controller: 'sprintCtl'
@@ -57,7 +61,7 @@ function doLogin($rootScope, $cookies, $location){
                     $cookies['auth'] = JSON.stringify($rootScope.auth);
                     $cookies['user'] = JSON.stringify($rootScope.user);
                     $location.path( "/projects" );
-              }, function(response) {console.log("Error: " + response);});
+              }, function(response) {console.log("Error: "); console.log(response); $scope.error = response['data']; });
       };
     }
  });
@@ -65,12 +69,12 @@ function doLogin($rootScope, $cookies, $location){
  app.controller('projectsCtl', function($scope, $http, $rootScope, $location, $cookies) {
     doLogin($rootScope, $cookies, $location)
     
-    $http.post('api.php/user/' + $rootScope.user.id + '/projects/', $rootScope.auth).                  
+    $http.post('api.php/user/' + $rootScope.user.id + '/projects/', {auth: $rootScope.auth, data:{}}).                  
         then(function(response) 
         {
             $rootScope.projects = response.data;
         }, 
-        function(response) {console.log("Error: " + response);});
+        function(response) {console.log("Error: "); console.log(response); $scope.error = response['data'];});
 });
 
  app.controller('projectCtl', function($scope, $http, $rootScope, $location, $cookies, $routeParams) {
@@ -78,26 +82,26 @@ function doLogin($rootScope, $cookies, $location){
     
     $scope.id = $routeParams.id;
     
-    $http.post('api.php/project/' + $routeParams.id, $rootScope.auth).                  
+    $http.post('api.php/project/' + $routeParams.id, {auth: $rootScope.auth, data:{}}).                  
         then(function(response) 
         {
             $scope.project = response.data[0];
         }, 
-        function(response) {console.log("Error: " + response);});
+        function(response) {console.log("Error: "); console.log(response); $scope.error = response['data'];});
     
-    $http.post('api.php/project/' + $routeParams.id + '/tasks', $rootScope.auth).                  
+    $http.post('api.php/project/' + $routeParams.id + '/tasks', {auth: $rootScope.auth, data:{}}).                  
         then(function(response) 
         {
             $scope.tasks = response.data;
         }, 
-        function(response) {console.log("Error: " + response);});
+        function(response) {console.log("Error: "); console.log(response);});
         
-    $http.post('api.php/project/' + $routeParams.id + '/sprints', $rootScope.auth).                  
+    $http.post('api.php/project/' + $routeParams.id + '/sprints', {auth: $rootScope.auth, data:{}}).                  
         then(function(response) 
         {
             $scope.sprints = response.data;
         }, 
-        function(response) {console.log("Error: " + response);});
+        function(response) {console.log("Error: "); console.log(response); $scope.error = response['data'];});
 });
 
  app.controller('taskCtl', function($scope, $http, $rootScope, $location, $cookies, $routeParams) {
@@ -105,12 +109,22 @@ function doLogin($rootScope, $cookies, $location){
         
         $scope.id = $routeParams.id;
         
-        $http.post('api.php/task/' + $routeParams.id, $rootScope.auth).                  
+        $http.post('api.php/task/' + $routeParams.id, {auth: $rootScope.auth, data:{}}).                  
             then(function(response) 
             {
                 $scope.task = response.data[0];
             }, 
-            function(response) {console.log("Error: " + response);});
+            function(response) {console.log("Error: "); console.log(response); $scope.error = response['data'];});
+            
+        $scope.save = function(){
+            //$scope.task
+            //Call the UPDATE API
+            
+            $http.post('api.php/update/task/' + $routeParams.id, {auth: $rootScope.auth, data: $scope.task}).                  
+            then(function(response) 
+            { }, 
+            function(response) {console.log("Error: "); console.log(response); $scope.error = response['data'];});
+        }
 });
 
  app.controller('sprintCtl', function($scope, $http, $rootScope, $location, $cookies, $routeParams) {
@@ -118,7 +132,7 @@ function doLogin($rootScope, $cookies, $location){
         
         $scope.id = $routeParams.id;
         
-        $http.post('api.php/sprint/' + $routeParams.id, $rootScope.auth).                  
+        $http.post('api.php/sprint/' + $routeParams.id, {auth: $rootScope.auth, data:{}}).                  
             then(function(response) 
             {
                 $scope.sprint = response.data[0];
@@ -130,7 +144,7 @@ function doLogin($rootScope, $cookies, $location){
             {
                 $scope.tasks = response.data;
             }, 
-            function(response) {console.log("Error: " + response);}); 
+            function(response) {console.log("Error: "); console.log(response); $scope.error = response['data'];}); 
             
 });
 
@@ -139,10 +153,10 @@ function doLogin($rootScope, $cookies, $location){
         
         $scope.id = $routeParams.id;
         
-        $http.post('api.php/user/' + $routeParams.id, $rootScope.auth).                  
+        $http.post('api.php/user/' + $routeParams.id, {auth: $rootScope.auth, data:{}}).                  
             then(function(response) 
             {
                 $scope.user = response.data[0];
             }, 
-            function(response) {console.log("Error: " + response);});
+            function(response) {console.log("Error: "); console.log(response); $scope.error = response['data'];});
 });

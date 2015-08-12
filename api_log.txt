@@ -1,0 +1,6 @@
+UPDATE tasks SET name = 'THE TASKo'  WHERE id = 1 AND author = 1
+UPDATE tasks SET name = 'THE TASKo'  WHERE id = 1 AND author = 1
+UPDATE tasks SET name = 'THE TASK'  WHERE id = 1 AND author = 1
+UPDATE tasks SET name = 'THE TASKo'  WHERE id = 1 AND author = 1
+UPDATE tasks SET name = 'THE TASKo'  WHERE id = 1
+UPDATE tasks SET name = 'Das Tusker'  WHERE id = 1
