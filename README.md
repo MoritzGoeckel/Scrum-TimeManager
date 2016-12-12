@@ -1,5 +1,5 @@
 #Scrum TimeManager
-This is a web based software for timemanagement inspired by scrum.
+This is a web based software for timemanagement inspired by scrum. It uses Slim for the REST-API in PHP, which is connecting the AngularJS frontend to the MySQL database.
 
 ##Modules:
 - MySQL Database
